@@ -1,0 +1,455 @@
+{
+	"jobConfig": {
+		"name": "flight_data_ingestion10",
+		"description": "",
+		"role": "arn:aws:iam::398738544149:role/Assignment10",
+		"command": "glueetl",
+		"version": "4.0",
+		"runtime": null,
+		"workerType": "G.1X",
+		"numberOfWorkers": 2,
+		"maxCapacity": 2,
+		"maxRetries": 0,
+		"timeout": 2880,
+		"maxConcurrentRuns": 1,
+		"security": "none",
+		"scriptName": "flight_data_ingestion10.py",
+		"scriptLocation": "s3://aws-glue-assets-398738544149-us-east-1/scripts/",
+		"language": "python-3",
+		"spark": true,
+		"sparkConfiguration": "standard",
+		"jobParameters": [
+			{
+				"key": "--JOB NAME--",
+				"value": "flight_data_ingestion",
+				"existing": false
+			}
+		],
+		"tags": [],
+		"jobMode": "DEVELOPER_MODE",
+		"createdOn": "2024-05-22T17:27:53.971Z",
+		"developerMode": false,
+		"connectionsList": [
+			"Redshift connection10"
+		],
+		"temporaryDirectory": "s3://aws-glue-assets-398738544149-us-east-1/temporary/",
+		"logging": true,
+		"glueHiveMetastore": true,
+		"etlAutoTuning": false,
+		"metrics": true,
+		"observabilityMetrics": true,
+		"bookmark": "job-bookmark-enable",
+		"sparkPath": "s3://aws-glue-assets-398738544149-us-east-1/sparkHistoryLogs/",
+		"flexExecution": false,
+		"minFlexWorkers": null,
+		"maintenanceWindow": null,
+		"pythonPath": null
+	},
+	"dag": {
+		"node-1716396780009": {
+			"nodeId": "node-1716396780009",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1716380413907",
+				"node-1716380700231"
+			],
+			"name": "Join_for_dep_airport",
+			"generatedNodeName": "Join_for_dep_airport_node1716396780009",
+			"classification": "Transform",
+			"type": "Join",
+			"joinType": "left",
+			"columns": [
+				{
+					"from": "node-1716380413907",
+					"keys": [
+						"originairportid"
+					]
+				},
+				{
+					"from": "node-1716380700231",
+					"keys": [
+						"airport_id"
+					]
+				}
+			],
+			"columnConditions": [
+				"="
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1716380413907": {
+			"nodeId": "node-1716380413907",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1716380274339"
+			],
+			"name": "Filter",
+			"generatedNodeName": "Filter_node1716380413907",
+			"classification": "Transform",
+			"type": "Filter",
+			"logicalOperator": "AND",
+			"filters": [
+				{
+					"operation": "GTE",
+					"negated": false,
+					"values": [
+						{
+							"type": "COLUMNEXTRACTED",
+							"value": "depdelay"
+						},
+						{
+							"type": "CONSTANT",
+							"value": [
+								"60"
+							]
+						}
+					]
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1716380700231": {
+			"nodeId": "node-1716380700231",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [],
+			"name": "airport_dim",
+			"generatedNodeName": "airport_dim_node1716380700231",
+			"classification": "DataSource",
+			"type": "Catalog",
+			"isCatalog": true,
+			"database": "airline_datamart10",
+			"table": "dev_airlines_airports_dim",
+			"calculatedType": "",
+			"runtimeParameters": [],
+			"codeGenVersion": 2,
+			"storage": "Redshift",
+			"redshiftTmpDir": "s3://temp10-su/airline_dim/",
+			"tmpDirIAMRole": "arn:aws:iam::398738544149:role/service-role/AmazonRedshift-CommandsAccessRole-20240522T152317"
+		},
+		"node-1716396905613": {
+			"nodeId": "node-1716396905613",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1716396780009"
+			],
+			"name": "modify_dept_airport_columns",
+			"generatedNodeName": "modify_dept_airport_columns_node1716396905613",
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"mapping": [
+				{
+					"toKey": "date",
+					"fromPath": [
+						"date"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "originairportid",
+					"fromPath": [
+						"originairportid"
+					],
+					"toType": "long",
+					"fromType": "long",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "dep_delay",
+					"fromPath": [
+						"depdelay"
+					],
+					"toType": "bigint",
+					"fromType": "long",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "arr_delay",
+					"fromPath": [
+						"arrdelay"
+					],
+					"toType": "bigint",
+					"fromType": "long",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "destairportid",
+					"fromPath": [
+						"destairportid"
+					],
+					"toType": "long",
+					"fromType": "long",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "carrier",
+					"fromPath": [
+						"carrier"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "airport_id",
+					"fromPath": [
+						"airport_id"
+					],
+					"toType": "long",
+					"fromType": "long",
+					"dropped": true,
+					"children": null
+				},
+				{
+					"toKey": "dep_city",
+					"fromPath": [
+						"city"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "dep_airport",
+					"fromPath": [
+						"name"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "dep_state",
+					"fromPath": [
+						"state"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1716397411316": {
+			"nodeId": "node-1716397411316",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1716396905613",
+				"node-1716380700231"
+			],
+			"name": "Join_for_arr_airport",
+			"generatedNodeName": "Join_for_arr_airport_node1716397411316",
+			"classification": "Transform",
+			"type": "Join",
+			"joinType": "left",
+			"columns": [
+				{
+					"from": "node-1716396905613",
+					"keys": [
+						"destairportid"
+					]
+				},
+				{
+					"from": "node-1716380700231",
+					"keys": [
+						"airport_id"
+					]
+				}
+			],
+			"columnConditions": [
+				"="
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		},
+		"node-1716380274339": {
+			"nodeId": "node-1716380274339",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [],
+			"name": "daily_flights",
+			"generatedNodeName": "daily_flights_node1716380274339",
+			"classification": "DataSource",
+			"type": "Catalog",
+			"isCatalog": true,
+			"database": "airline_datamart10",
+			"table": "daily_flights10",
+			"calculatedType": "",
+			"runtimeParameters": [],
+			"codeGenVersion": 2
+		},
+		"node-1716397687657": {
+			"nodeId": "node-1716397687657",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1716397526149"
+			],
+			"name": "redshift_target_table",
+			"generatedNodeName": "redshift_target_table_node1716397687657",
+			"classification": "DataSink",
+			"type": "Redshift",
+			"streamingBatchInterval": 100,
+			"database": "airline_datamart10",
+			"table": "dev_airlines_daily_flights_fact",
+			"format": "json",
+			"partitionKeys": [],
+			"upsertRedshiftOptions": null,
+			"calculatedType": "",
+			"isUpsert": false,
+			"redshiftTmpDir": "s3://temp10-su/airline_fact/",
+			"tmpDirIAMRole": "arn:aws:iam::398738544149:role/service-role/AmazonRedshift-CommandsAccessRole-20240522T152317",
+			"codeGenVersion": 2,
+			"storage": "Redshift"
+		},
+		"node-1716397526149": {
+			"nodeId": "node-1716397526149",
+			"dataPreview": false,
+			"previewAmount": 0,
+			"inputs": [
+				"node-1716397411316"
+			],
+			"name": "modify_arr_airport_columns",
+			"generatedNodeName": "modify_arr_airport_columns_node1716397526149",
+			"classification": "Transform",
+			"type": "ApplyMapping",
+			"mapping": [
+				{
+					"toKey": "dep_delay",
+					"fromPath": [
+						"dep_delay"
+					],
+					"toType": "long",
+					"fromType": "bigint",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "arr_delay",
+					"fromPath": [
+						"arr_delay"
+					],
+					"toType": "long",
+					"fromType": "bigint",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "destairportid",
+					"fromPath": [
+						"destairportid"
+					],
+					"toType": "long",
+					"fromType": "long",
+					"dropped": true
+				},
+				{
+					"toKey": "carrier",
+					"fromPath": [
+						"carrier"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "dep_city",
+					"fromPath": [
+						"dep_city"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "dep_airport",
+					"fromPath": [
+						"dep_airport"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "dep_state",
+					"fromPath": [
+						"dep_state"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "airport_id",
+					"fromPath": [
+						"airport_id"
+					],
+					"toType": "long",
+					"fromType": "long",
+					"dropped": true
+				},
+				{
+					"toKey": "arr_city",
+					"fromPath": [
+						"city"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "arr_airport",
+					"fromPath": [
+						"name"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				},
+				{
+					"toKey": "arr_state",
+					"fromPath": [
+						"state"
+					],
+					"toType": "string",
+					"fromType": "string",
+					"dropped": false,
+					"children": null
+				}
+			],
+			"parentsValid": true,
+			"calculatedType": "",
+			"codeGenVersion": 2
+		}
+	},
+	"hasBeenSaved": false,
+	"script": "import sys\nfrom awsglue.transforms import *\nfrom awsglue.utils import getResolvedOptions\nfrom pyspark.context import SparkContext\nfrom awsglue.context import GlueContext\nfrom awsglue.job import Job\nfrom awsglue.dynamicframe import DynamicFrame\nimport re\n\nargs = getResolvedOptions(sys.argv, ['JOB_NAME'])\nsc = SparkContext()\nglueContext = GlueContext(sc)\nspark = glueContext.spark_session\njob = Job(glueContext)\njob.init(args['JOB_NAME'], args)\n\n# Script generated for node airport_dim\nairport_dim_node1716380700231 = glueContext.create_dynamic_frame.from_catalog(database=\"airline_datamart10\", table_name=\"dev_airlines_airports_dim\", transformation_ctx=\"airport_dim_node1716380700231\", redshift_tmp_dir=\"s3://temp10-su/airline_dim/\")\n\n# Script generated for node daily_flights\ndaily_flights_node1716380274339 = glueContext.create_dynamic_frame.from_catalog(database=\"airline_datamart10\", table_name=\"daily_flights10\", transformation_ctx=\"daily_flights_node1716380274339\")\n\n# Script generated for node Filter\nFilter_node1716380413907 = Filter.apply(frame=daily_flights_node1716380274339, f=lambda row: (row[\"depdelay\"] >= 60), transformation_ctx=\"Filter_node1716380413907\")\n\n# Script generated for node Join_for_dep_airport\nFilter_node1716380413907DF = Filter_node1716380413907.toDF()\nairport_dim_node1716380700231DF = airport_dim_node1716380700231.toDF()\nJoin_for_dep_airport_node1716396780009 = DynamicFrame.fromDF(Filter_node1716380413907DF.join(airport_dim_node1716380700231DF, (Filter_node1716380413907DF['originairportid'] == airport_dim_node1716380700231DF['airport_id']), \"left\"), glueContext, \"Join_for_dep_airport_node1716396780009\")\n\n# Script generated for node modify_dept_airport_columns\nmodify_dept_airport_columns_node1716396905613 = ApplyMapping.apply(frame=Join_for_dep_airport_node1716396780009, mappings=[(\"depdelay\", \"long\", \"dep_delay\", \"bigint\"), (\"arrdelay\", \"long\", \"arr_delay\", \"bigint\"), (\"destairportid\", \"long\", \"destairportid\", \"long\"), (\"carrier\", \"string\", \"carrier\", \"string\"), (\"city\", \"string\", \"dep_city\", \"string\"), (\"name\", \"string\", \"dep_airport\", \"string\"), (\"state\", \"string\", \"dep_state\", \"string\")], transformation_ctx=\"modify_dept_airport_columns_node1716396905613\")\n\n# Script generated for node Join_for_arr_airport\nmodify_dept_airport_columns_node1716396905613DF = modify_dept_airport_columns_node1716396905613.toDF()\nairport_dim_node1716380700231DF = airport_dim_node1716380700231.toDF()\nJoin_for_arr_airport_node1716397411316 = DynamicFrame.fromDF(modify_dept_airport_columns_node1716396905613DF.join(airport_dim_node1716380700231DF, (modify_dept_airport_columns_node1716396905613DF['destairportid'] == airport_dim_node1716380700231DF['airport_id']), \"left\"), glueContext, \"Join_for_arr_airport_node1716397411316\")\n\n# Script generated for node modify_arr_airport_columns\nmodify_arr_airport_columns_node1716397526149 = ApplyMapping.apply(frame=Join_for_arr_airport_node1716397411316, mappings=[(\"dep_delay\", \"bigint\", \"dep_delay\", \"long\"), (\"arr_delay\", \"bigint\", \"arr_delay\", \"long\"), (\"carrier\", \"string\", \"carrier\", \"string\"), (\"dep_city\", \"string\", \"dep_city\", \"string\"), (\"dep_airport\", \"string\", \"dep_airport\", \"string\"), (\"dep_state\", \"string\", \"dep_state\", \"string\"), (\"city\", \"string\", \"arr_city\", \"string\"), (\"name\", \"string\", \"arr_airport\", \"string\"), (\"state\", \"string\", \"arr_state\", \"string\")], transformation_ctx=\"modify_arr_airport_columns_node1716397526149\")\n\n# Script generated for node redshift_target_table\nredshift_target_table_node1716397687657 = glueContext.write_dynamic_frame.from_catalog(frame=modify_arr_airport_columns_node1716397526149, database=\"airline_datamart10\", table_name=\"dev_airlines_daily_flights_fact\", redshift_tmp_dir=\"s3://temp10-su/airline_fact/\",additional_options={\"aws_iam_role\": \"arn:aws:iam::398738544149:role/service-role/AmazonRedshift-CommandsAccessRole-20240522T152317\"}, transformation_ctx=\"redshift_target_table_node1716397687657\")\n\njob.commit()"
+}
